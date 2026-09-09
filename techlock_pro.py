@@ -28,6 +28,8 @@ st.set_page_config(
 # ─── CONSTANTS ────────────────────────────────────────────────────────────────
 DATA_FILE = "techlock_data.json"
 MONTHS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
+MONTHS_FULL = ["enero","febrero","marzo","abril","mayo","junio",
+               "julio","agosto","septiembre","octubre","noviembre","diciembre"]
 PAYMENT_METHODS = ["Efectivo","Transferencia","Nequi","Daviplata","Tarjeta","A crédito"]
 
 ORDER_TYPES = {
@@ -296,7 +298,12 @@ def inject_css() -> None:
         border-radius: 12px;
         border: 1.5px solid #e5e7eb;
     }
-    div[data-testid="stMetricValue"] > div {
+    div[data-testid="stMetricLabel"] * {
+        color: #6b7280 !important;
+        opacity: 1 !important;
+    }
+    div[data-testid="stMetricValue"] * {
+        color: #111827 !important;
         font-weight: 800 !important;
     }
 
@@ -383,7 +390,8 @@ def view_dashboard() -> None:
     col_h, col_btn = st.columns([4, 1])
     with col_h:
         st.title("⊞ Panel de control")
-        st.caption(f"TechLock Pro · {datetime.now().strftime('%d de %B de %Y')}")
+        _hoy = datetime.now()
+        st.caption(f"TechLock Pro · {_hoy.day} de {MONTHS_FULL[_hoy.month - 1]} de {_hoy.year}")
     with col_btn:
         st.write("")
         if st.button("＋ Nuevo pedido", type="primary", use_container_width=True, key="dash_new"):
@@ -826,6 +834,7 @@ def view_inventory() -> None:
 
     # ── Product grid ─────────────────────────────────────────────────────────
     tab_labels  = ["Todos","🔐 Cerraduras","💻 Accesorios PC","⚠️ Stock bajo"]
+    tab_keys    = ["all", "lock", "acc", "low"]
     tab_filters = [
         lambda p: True,
         lambda p: p["cat"] == "cerradura",
@@ -833,7 +842,7 @@ def view_inventory() -> None:
         lambda p: p["stock"] <= p["min"],
     ]
 
-    for tab, filt in zip(st.tabs(tab_labels), tab_filters):
+    for tab, tkey, filt in zip(st.tabs(tab_labels), tab_keys, tab_filters):
         with tab:
             prods = [p for p in d["products"] if filt(p)]
 
@@ -866,13 +875,13 @@ def view_inventory() -> None:
 
                         ce, cs = st.columns(2)
                         with ce:
-                            if st.button("✏️ Editar", key=f"ed_p_{p['id']}", use_container_width=True):
+                            if st.button("✏️ Editar", key=f"ed_p_{tkey}_{p['id']}", use_container_width=True):
                                 st.session_state.edit_product  = p
                                 st.session_state.product_form  = True
                                 st.session_state.stock_product = None
                                 st.rerun()
                         with cs:
-                            if st.button("📥 Stock", key=f"si_p_{p['id']}",
+                            if st.button("📥 Stock", key=f"si_p_{tkey}_{p['id']}",
                                          type="primary", use_container_width=True):
                                 st.session_state.stock_product = p
                                 st.session_state.product_form  = False
