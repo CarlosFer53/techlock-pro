@@ -3,19 +3,19 @@
 ║          TechLock Pro — Sistema de Gestión de Negocio               ║
 ║          Instalaciones de cerraduras + Servicios técnicos           ║
 ╠══════════════════════════════════════════════════════════════════════╣
-║  Instalación:   pip install streamlit plotly                        ║
+║  Instalación:   pip install -r requirements.txt                     ║
 ║  Ejecutar:      streamlit run techlock_pro.py                       ║
+║  Datos:         Supabase (PostgreSQL) — ver .streamlit/secrets.toml ║
 ║  Python:        3.8+   |   Streamlit: 1.29+                        ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """
 
 import copy
-import json
-import os
 from datetime import date, datetime
 
 import plotly.graph_objects as go
 import streamlit as st
+from supabase import create_client, Client
 
 # ─── PAGE CONFIG ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -26,7 +26,6 @@ st.set_page_config(
 )
 
 # ─── CONSTANTS ────────────────────────────────────────────────────────────────
-DATA_FILE = "techlock_data.json"
 MONTHS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
 MONTHS_FULL = ["enero","febrero","marzo","abril","mayo","junio",
                "julio","agosto","septiembre","octubre","noviembre","diciembre"]
@@ -54,61 +53,6 @@ STATUS_LABELS = {
     "cancelado":  "✕ Cancelar pedido",
 }
 
-# ─── SEED DATA ────────────────────────────────────────────────────────────────
-SEED_DATA = {
-    "clients": [
-        {"id":1,"name":"María García","phone":"3001234567","addr":"Cl 80 #45-23, Medellín","since":"2025-01-15"},
-        {"id":2,"name":"Carlos Rodríguez","phone":"3109876543","addr":"Kr 65 #12-34, Medellín","since":"2025-02-01"},
-        {"id":3,"name":"Ana Martínez","phone":"3205551234","addr":"Av El Poblado #15-44, Medellín","since":"2025-03-10"},
-    ],
-    "products": [
-        {"id":1,"name":"Cerradura Yale YDM4109 WiFi","cat":"cerradura","stock":5,"min":2,"price":450000,"cost":280000},
-        {"id":2,"name":"Cerradura Ultraloq UL3 BT","cat":"cerradura","stock":3,"min":2,"price":380000,"cost":220000},
-        {"id":3,"name":"Cerradura Tuya Smart Pro","cat":"cerradura","stock":7,"min":3,"price":290000,"cost":165000},
-        {"id":4,"name":"Teclado Redragon Kumara RGB","cat":"accesorio","stock":8,"min":3,"price":120000,"cost":72000},
-        {"id":5,"name":"Mouse Logitech G305","cat":"accesorio","stock":6,"min":3,"price":145000,"cost":88000},
-        {"id":6,"name":"RAM 8GB DDR4 Kingston","cat":"accesorio","stock":4,"min":2,"price":95000,"cost":58000},
-        {"id":7,"name":"SSD 240GB Kingston A400","cat":"accesorio","stock":5,"min":2,"price":110000,"cost":68000},
-        {"id":8,"name":"Cable HDMI 2m Premium","cat":"accesorio","stock":20,"min":5,"price":22000,"cost":10000},
-        {"id":9,"name":"Pasta térmica Arctic MX-4","cat":"accesorio","stock":12,"min":4,"price":18000,"cost":8000},
-    ],
-    "services": [
-        {"id":1,"name":"Instalación cerradura estándar","cat":"instalacion","price":80000},
-        {"id":2,"name":"Instalación cerradura premium","cat":"instalacion","price":130000},
-        {"id":3,"name":"Formateo + Windows 10/11","cat":"tecnico","price":70000},
-        {"id":4,"name":"Mantenimiento preventivo","cat":"tecnico","price":55000},
-        {"id":5,"name":"Mantenimiento correctivo","cat":"tecnico","price":90000},
-        {"id":6,"name":"Instalación de software","cat":"tecnico","price":35000},
-        {"id":7,"name":"Recuperación de datos","cat":"tecnico","price":120000},
-        {"id":8,"name":"Diagnóstico técnico","cat":"tecnico","price":30000},
-    ],
-    "orders": [
-        {"id":1,"cid":1,"type":"cerradura","status":"completado","date":"2025-05-02","done":"2025-05-03",
-         "items":[{"k":"p","id":1,"name":"Cerradura Yale YDM4109 WiFi","qty":1,"price":450000},
-                  {"k":"s","id":1,"name":"Instalación estándar","qty":1,"price":80000}],
-         "total":530000,"pay":"Transferencia","notes":"Puerta principal apto 301"},
-        {"id":2,"cid":2,"type":"tecnico","status":"completado","date":"2025-05-08","done":"2025-05-08",
-         "items":[{"k":"s","id":3,"name":"Formateo + Windows","qty":1,"price":70000},
-                  {"k":"p","id":9,"name":"Pasta térmica Arctic MX-4","qty":1,"price":18000}],
-         "total":88000,"pay":"Efectivo","notes":"HP Pavilion i5 10th gen"},
-        {"id":3,"cid":3,"type":"cerradura","status":"completado","date":"2025-05-20","done":"2025-05-21",
-         "items":[{"k":"p","id":2,"name":"Cerradura Ultraloq UL3 BT","qty":1,"price":380000},
-                  {"k":"s","id":2,"name":"Instalación premium","qty":1,"price":130000}],
-         "total":510000,"pay":"Nequi","notes":"Casa nueva, puerta principal"},
-        {"id":4,"cid":1,"type":"tecnico","status":"completado","date":"2025-05-25","done":"2025-05-25",
-         "items":[{"k":"s","id":4,"name":"Mantenimiento preventivo","qty":1,"price":55000},
-                  {"k":"s","id":6,"name":"Instalación software","qty":1,"price":35000}],
-         "total":90000,"pay":"Efectivo","notes":"PC escritorio Dell"},
-        {"id":5,"cid":2,"type":"cerradura","status":"en_proceso","date":"2025-06-03","done":None,
-         "items":[{"k":"p","id":3,"name":"Cerradura Tuya Smart Pro","qty":1,"price":290000},
-                  {"k":"s","id":1,"name":"Instalación estándar","qty":1,"price":80000}],
-         "total":370000,"pay":"","notes":"Oficina 2do piso"},
-        {"id":6,"cid":3,"type":"tecnico","status":"pendiente","date":"2025-06-06","done":None,
-         "items":[{"k":"s","id":5,"name":"Mantenimiento correctivo","qty":1,"price":90000}],
-         "total":90000,"pay":"","notes":"Laptop ASUS no enciende"},
-    ],
-}
-
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
 def fmt(n: int) -> str:
     """Formato peso colombiano: $ 1.234.567"""
@@ -127,28 +71,45 @@ def fmt_short(n: int) -> str:
 def today() -> str:
     return date.today().isoformat()
 
-def nid(lst: list) -> int:
-    return max((x["id"] for x in lst), default=0) + 1
-
 def get_client(cid: int) -> dict | None:
     return next((c for c in st.session_state.data["clients"] if c["id"] == cid), None)
 
-# ─── DATA PERSISTENCE ─────────────────────────────────────────────────────────
-def load_data() -> dict:
-    if os.path.exists(DATA_FILE):
-        try:
-            with open(DATA_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return copy.deepcopy(SEED_DATA)
+# ─── DATA PERSISTENCE (Supabase) ───────────────────────────────────────────────
+@st.cache_resource
+def get_supabase() -> Client:
+    """One shared connection per app instance — reused across reruns and users."""
+    return create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
 
-def save_data(data: dict) -> None:
-    try:
-        with open(DATA_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        st.warning(f"⚠️ No se pudo guardar: {e}")
+def load_data() -> dict:
+    sb = get_supabase()
+
+    clients  = sb.table("clients").select("*").order("id").execute().data
+    products = sb.table("products").select("*").order("id").execute().data
+    services = sb.table("services").select("*").order("id").execute().data
+    orders_raw = sb.table("orders").select("*").order("id").execute().data
+    items_raw  = sb.table("order_items").select("*").execute().data
+
+    # order_items lives in its own table — regroup it under each order,
+    # exactly like the "items" list the rest of the app already expects.
+    items_by_order: dict = {}
+    for it in items_raw:
+        items_by_order.setdefault(it["order_id"], []).append({
+            "k": it["kind"], "id": it["item_id"], "name": it["name"],
+            "qty": it["qty"], "price": it["price"],
+        })
+
+    orders = [{
+        "id": o["id"], "cid": o["cid"], "type": o["type"], "status": o["status"],
+        "date": o["date"], "done": o["done"], "total": o["total"],
+        "pay": o["pay"] or "", "notes": o["notes"] or "",
+        "items": items_by_order.get(o["id"], []),
+    } for o in orders_raw]
+
+    return {"clients": clients, "products": products, "services": services, "orders": orders}
+
+def refresh_data() -> None:
+    """Re-read everything from Supabase after a change, so every view sees it."""
+    st.session_state.data = load_data()
 
 # ─── SESSION STATE ────────────────────────────────────────────────────────────
 def init_state() -> None:
@@ -172,67 +133,59 @@ def init_state() -> None:
         if key not in st.session_state:
             st.session_state[key] = val
 
-# ─── DATA OPERATIONS ─────────────────────────────────────────────────────────
-def mutate(fn) -> None:
-    """Apply a pure function to a deep copy of data, then save."""
-    new_data = fn(copy.deepcopy(st.session_state.data))
-    st.session_state.data = new_data
-    save_data(new_data)
-
+# ─── DATA OPERATIONS (Supabase) ────────────────────────────────────────────────
 def op_add_order(order: dict) -> None:
-    def fn(d):
-        order["id"] = nid(d["orders"])
-        d["orders"].append(order)
-        return d
-    mutate(fn)
+    sb    = get_supabase()
+    items = order.pop("items", [])
+    new_id = sb.table("orders").insert(order).execute().data[0]["id"]
+    if items:
+        rows = [{"order_id": new_id, "kind": it["k"], "item_id": it["id"],
+                  "name": it["name"], "qty": it["qty"], "price": it["price"]} for it in items]
+        sb.table("order_items").insert(rows).execute()
+    refresh_data()
     st.toast("✅ Pedido creado correctamente")
 
 def op_update_order(order: dict) -> None:
-    def fn(d):
-        d["orders"] = [order if o["id"] == order["id"] else o for o in d["orders"]]
-        return d
-    mutate(fn)
+    sb  = get_supabase()
+    row = {"status": order["status"], "pay": order.get("pay", ""), "done": order.get("done")}
+    sb.table("orders").update(row).eq("id", order["id"]).execute()
+    refresh_data()
     st.toast("✅ Pedido actualizado")
 
 def op_add_client(client: dict) -> None:
-    def fn(d):
-        client["id"] = nid(d["clients"])
-        client.setdefault("since", today())
-        d["clients"].append(client)
-        return d
-    mutate(fn)
+    sb  = get_supabase()
+    row = {"name": client["name"], "phone": client["phone"],
+           "addr": client.get("addr", ""), "email": client.get("email", "")}
+    sb.table("clients").insert(row).execute()
+    refresh_data()
     st.toast("✅ Cliente agregado")
 
 def op_update_client(client: dict) -> None:
-    def fn(d):
-        d["clients"] = [client if c["id"] == client["id"] else c for c in d["clients"]]
-        return d
-    mutate(fn)
+    sb  = get_supabase()
+    row = {"name": client["name"], "phone": client["phone"],
+           "addr": client.get("addr", ""), "email": client.get("email", "")}
+    sb.table("clients").update(row).eq("id", client["id"]).execute()
+    refresh_data()
     st.toast("✅ Cliente actualizado")
 
 def op_add_product(product: dict) -> None:
-    def fn(d):
-        product["id"] = nid(d["products"])
-        d["products"].append(product)
-        return d
-    mutate(fn)
+    sb = get_supabase()
+    sb.table("products").insert(product).execute()
+    refresh_data()
     st.toast("✅ Producto agregado al inventario")
 
 def op_update_product(product: dict) -> None:
-    def fn(d):
-        d["products"] = [product if p["id"] == product["id"] else p for p in d["products"]]
-        return d
-    mutate(fn)
+    sb  = get_supabase()
+    row = {k: v for k, v in product.items() if k != "id"}
+    sb.table("products").update(row).eq("id", product["id"]).execute()
+    refresh_data()
     st.toast("✅ Inventario actualizado")
 
 def op_stock_in(product_id: int, qty: int) -> None:
-    def fn(d):
-        for p in d["products"]:
-            if p["id"] == product_id:
-                p["stock"] += qty
-                break
-        return d
-    mutate(fn)
+    sb      = get_supabase()
+    current = sb.table("products").select("stock").eq("id", product_id).execute().data[0]["stock"]
+    sb.table("products").update({"stock": current + qty}).eq("id", product_id).execute()
+    refresh_data()
     st.toast(f"📦 +{qty} unidades ingresadas al inventario")
 
 # ─── COMPUTED DATA ────────────────────────────────────────────────────────────
@@ -1086,8 +1039,9 @@ def view_services() -> None:
             st.divider()
 
     st.info(
-        "💡 Los datos se guardan en el archivo `techlock_data.json` junto a este script. "
-        "Puedes editarlo directamente para modificar precios de servicios."
+        "💡 Los precios de servicios ahora viven en Supabase, en la tabla `services`. "
+        "Puedes editarlos directamente desde el Table Editor de tu proyecto Supabase — "
+        "sin tocar código — y aparecen aquí en el siguiente refresco de la página."
     )
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────────

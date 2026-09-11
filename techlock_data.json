@@ -1,0 +1,392 @@
+{
+  "clients": [
+    {
+      "id": 1,
+      "name": "María García",
+      "phone": "3001234567",
+      "addr": "Cl 80 #45-23, Medellín",
+      "since": "2025-01-15"
+    },
+    {
+      "id": 2,
+      "name": "Carlos Rodríguez",
+      "phone": "3109876543",
+      "addr": "Kr 65 #12-34, Medellín",
+      "since": "2025-02-01"
+    },
+    {
+      "id": 3,
+      "name": "Ana Martínez",
+      "phone": "3205551234",
+      "addr": "Av El Poblado #15-44, Medellín",
+      "since": "2025-03-10"
+    },
+    {
+      "name": "Andrea Muete",
+      "phone": "3164060644",
+      "addr": "Manizales",
+      "email": "andrea-muete@hotmail.com",
+      "id": 4,
+      "since": "2026-09-10"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Cerradura Yale YDM4109 WiFi",
+      "cat": "cerradura",
+      "stock": 5,
+      "min": 2,
+      "price": 450000,
+      "cost": 280000
+    },
+    {
+      "id": 2,
+      "name": "Cerradura Ultraloq UL3 BT",
+      "cat": "cerradura",
+      "stock": 3,
+      "min": 2,
+      "price": 380000,
+      "cost": 220000
+    },
+    {
+      "id": 3,
+      "name": "Cerradura Tuya Smart Pro",
+      "cat": "cerradura",
+      "stock": 7,
+      "min": 3,
+      "price": 290000,
+      "cost": 165000
+    },
+    {
+      "id": 4,
+      "name": "Teclado Redragon Kumara RGB",
+      "cat": "accesorio",
+      "stock": 8,
+      "min": 3,
+      "price": 120000,
+      "cost": 72000
+    },
+    {
+      "id": 5,
+      "name": "Mouse Logitech G305",
+      "cat": "accesorio",
+      "stock": 6,
+      "min": 3,
+      "price": 145000,
+      "cost": 88000
+    },
+    {
+      "id": 6,
+      "name": "RAM 8GB DDR4 Kingston",
+      "cat": "accesorio",
+      "stock": 4,
+      "min": 2,
+      "price": 95000,
+      "cost": 58000
+    },
+    {
+      "id": 7,
+      "name": "SSD 240GB Kingston A400",
+      "cat": "accesorio",
+      "stock": 5,
+      "min": 2,
+      "price": 110000,
+      "cost": 68000
+    },
+    {
+      "id": 8,
+      "name": "Cable HDMI 2m Premium",
+      "cat": "accesorio",
+      "stock": 20,
+      "min": 5,
+      "price": 22000,
+      "cost": 10000
+    },
+    {
+      "id": 9,
+      "name": "Pasta térmica Arctic MX-4",
+      "cat": "accesorio",
+      "stock": 12,
+      "min": 4,
+      "price": 18000,
+      "cost": 8000
+    },
+    {
+      "name": "Cerradura Inteligente OSPON",
+      "cat": "cerradura",
+      "price": 450000,
+      "cost": 269000,
+      "stock": 1,
+      "min": 2,
+      "id": 10
+    }
+  ],
+  "services": [
+    {
+      "id": 1,
+      "name": "Instalación cerradura estándar",
+      "cat": "instalacion",
+      "price": 80000
+    },
+    {
+      "id": 2,
+      "name": "Instalación cerradura premium",
+      "cat": "instalacion",
+      "price": 130000
+    },
+    {
+      "id": 3,
+      "name": "Formateo + Windows 10/11",
+      "cat": "tecnico",
+      "price": 70000
+    },
+    {
+      "id": 4,
+      "name": "Mantenimiento preventivo",
+      "cat": "tecnico",
+      "price": 55000
+    },
+    {
+      "id": 5,
+      "name": "Mantenimiento correctivo",
+      "cat": "tecnico",
+      "price": 90000
+    },
+    {
+      "id": 6,
+      "name": "Instalación de software",
+      "cat": "tecnico",
+      "price": 35000
+    },
+    {
+      "id": 7,
+      "name": "Recuperación de datos",
+      "cat": "tecnico",
+      "price": 120000
+    },
+    {
+      "id": 8,
+      "name": "Diagnóstico técnico",
+      "cat": "tecnico",
+      "price": 30000
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "cid": 1,
+      "type": "cerradura",
+      "status": "completado",
+      "date": "2025-05-02",
+      "done": "2025-05-03",
+      "items": [
+        {
+          "k": "p",
+          "id": 1,
+          "name": "Cerradura Yale YDM4109 WiFi",
+          "qty": 1,
+          "price": 450000
+        },
+        {
+          "k": "s",
+          "id": 1,
+          "name": "Instalación estándar",
+          "qty": 1,
+          "price": 80000
+        }
+      ],
+      "total": 530000,
+      "pay": "Transferencia",
+      "notes": "Puerta principal apto 301"
+    },
+    {
+      "id": 2,
+      "cid": 2,
+      "type": "tecnico",
+      "status": "completado",
+      "date": "2025-05-08",
+      "done": "2025-05-08",
+      "items": [
+        {
+          "k": "s",
+          "id": 3,
+          "name": "Formateo + Windows",
+          "qty": 1,
+          "price": 70000
+        },
+        {
+          "k": "p",
+          "id": 9,
+          "name": "Pasta térmica Arctic MX-4",
+          "qty": 1,
+          "price": 18000
+        }
+      ],
+      "total": 88000,
+      "pay": "Efectivo",
+      "notes": "HP Pavilion i5 10th gen"
+    },
+    {
+      "id": 3,
+      "cid": 3,
+      "type": "cerradura",
+      "status": "completado",
+      "date": "2025-05-20",
+      "done": "2025-05-21",
+      "items": [
+        {
+          "k": "p",
+          "id": 2,
+          "name": "Cerradura Ultraloq UL3 BT",
+          "qty": 1,
+          "price": 380000
+        },
+        {
+          "k": "s",
+          "id": 2,
+          "name": "Instalación premium",
+          "qty": 1,
+          "price": 130000
+        }
+      ],
+      "total": 510000,
+      "pay": "Nequi",
+      "notes": "Casa nueva, puerta principal"
+    },
+    {
+      "id": 4,
+      "cid": 1,
+      "type": "tecnico",
+      "status": "completado",
+      "date": "2025-05-25",
+      "done": "2025-05-25",
+      "items": [
+        {
+          "k": "s",
+          "id": 4,
+          "name": "Mantenimiento preventivo",
+          "qty": 1,
+          "price": 55000
+        },
+        {
+          "k": "s",
+          "id": 6,
+          "name": "Instalación software",
+          "qty": 1,
+          "price": 35000
+        }
+      ],
+      "total": 90000,
+      "pay": "Efectivo",
+      "notes": "PC escritorio Dell"
+    },
+    {
+      "id": 5,
+      "cid": 2,
+      "type": "cerradura",
+      "status": "en_proceso",
+      "date": "2025-06-03",
+      "done": null,
+      "items": [
+        {
+          "k": "p",
+          "id": 3,
+          "name": "Cerradura Tuya Smart Pro",
+          "qty": 1,
+          "price": 290000
+        },
+        {
+          "k": "s",
+          "id": 1,
+          "name": "Instalación estándar",
+          "qty": 1,
+          "price": 80000
+        }
+      ],
+      "total": 370000,
+      "pay": "",
+      "notes": "Oficina 2do piso"
+    },
+    {
+      "id": 6,
+      "cid": 3,
+      "type": "tecnico",
+      "status": "pendiente",
+      "date": "2025-06-06",
+      "done": null,
+      "items": [
+        {
+          "k": "s",
+          "id": 5,
+          "name": "Mantenimiento correctivo",
+          "qty": 1,
+          "price": 90000
+        }
+      ],
+      "total": 90000,
+      "pay": "",
+      "notes": "Laptop ASUS no enciende"
+    },
+    {
+      "cid": 4,
+      "type": "cerradura",
+      "status": "pendiente",
+      "date": "2026-09-10",
+      "done": null,
+      "items": [
+        {
+          "k": "p",
+          "id": 10,
+          "name": "Cerradura Inteligente OSPON",
+          "qty": 1,
+          "price": 450000
+        }
+      ],
+      "total": 450000,
+      "pay": "Nequi",
+      "notes": "Instalación incluida",
+      "id": 7
+    },
+    {
+      "cid": 2,
+      "type": "cerradura",
+      "status": "pendiente",
+      "date": "2026-09-10",
+      "done": null,
+      "items": [
+        {
+          "k": "p",
+          "id": 1,
+          "name": "Cerradura Yale YDM4109 WiFi",
+          "qty": 1,
+          "price": 450000
+        }
+      ],
+      "total": 450000,
+      "pay": "Nequi",
+      "notes": "",
+      "id": 8
+    },
+    {
+      "cid": 1,
+      "type": "cerradura",
+      "status": "pendiente",
+      "date": "2026-09-10",
+      "done": null,
+      "items": [
+        {
+          "k": "p",
+          "id": 1,
+          "name": "Cerradura Yale YDM4109 WiFi",
+          "qty": 1,
+          "price": 450000
+        }
+      ],
+      "total": 450000,
+      "pay": "Efectivo",
+      "notes": "",
+      "id": 9
+    }
+  ]
+}
